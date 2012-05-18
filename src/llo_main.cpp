@@ -1,3 +1,5 @@
+#ifndef __LLO_MAIN_CPP__
+#define __LLO_MAIN_CPP__
 /// llo_main.c
 /****
  * Name: Tianhua Piao
@@ -30,3 +32,5 @@ int main(int argc, char** argv){
 
   return 0;
 }
+
+#endif // __LLO_MAIN_CPP__
