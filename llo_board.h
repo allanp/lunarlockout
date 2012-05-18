@@ -51,12 +51,6 @@ void save_board(int* board, int npin, const char* filename){
 
 void llo_board(int bmax, int npin, const char* filename){
   
-  FILE* f = fopen(filename, "r");
-  if(f){
-    fclose(f);
-    return;
-  }
-
 	if(bmax < npin) {
 		perror("Either the board is too small, or there are too many pins.");
 		exit(-1);
