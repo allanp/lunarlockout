@@ -1,12 +1,12 @@
-#ifndef __LLO_MAIN_CPP__
-#define __LLO_MAIN_CPP__
-/// llo_main.c
 /****
  * Name: Tianhua Piao
  * Project: Lunar Lockout
  * Email: tianhua [AT] student.chalmers.se
  * Date: May 17, 2011
  */
+
+#ifndef __LLO_MAIN_CPP__
+#define __LLO_MAIN_CPP__
 
 #include "include\llo.h"
 
