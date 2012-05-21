@@ -16,10 +16,10 @@
     <ClInclude Include="src\include\llo_defs.h">
       <Filter>src\include</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\llo_dfs.h">
+    <ClInclude Include="src\include\llo_moves.h">
       <Filter>src\include</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\llo_moves.h">
+    <ClInclude Include="src\include\llo_search.h">
       <Filter>src\include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,5 +35,10 @@
     <ClCompile Include="src\llo_main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="board_settings.txt">
+      <Filter>src</Filter>
+    </None>
   </ItemGroup>
 </Project>

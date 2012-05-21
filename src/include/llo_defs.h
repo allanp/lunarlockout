@@ -1,7 +1,10 @@
-#ifndef __LLO_DEFS_H__
-#define __LLO_DEFS_H__
+#ifndef LLO_DEFS_H_
+#define LLO_DEFS_H_
 
 /************************************** DEFINES *************************************/
+
+static const int version_major = 0;
+static const int version_minor = 1;
 
 /* board properties */
 #define BOARD_MAX       ((BOARD_WIDTH * BOARD_WIDTH) - 1)
@@ -28,6 +31,21 @@
 #define LLO_SUCCEED  0
 #define LLO_FAILED   -1
 
+/************************************** INCLUDES ************************************/
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+/************************************** TYPEDEFS ************************************/
+
+typedef short int PIN;
+
+typedef struct _board{
+	int board_width;
+	int num_pins;
+	PIN* board;
+}board, *board_ptr;
+
  
 /*************************************** MACROS *************************************/
 #define MAX(x, y)        ( ( (x)>(y) ) ? (x) : (y) )
@@ -42,14 +60,6 @@
 #define S_PUSH(STACK, BOARD, S_SIZE, BOARD_SIZE_IN_BYTES)      memcpy( (STACK[(++S_SIZE)]), (BOARD), (BOARD_SIZE_IN_BYTES))
 #define S_PEEK(STACK, S_SIZE)                                  STACK[(S_SIZE)]
 #define S_POP(STACK, S_SIZE)                                   STACK[(S_SIZE)--]
-
-/************************************** INCLUDES ************************************/
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-/************************************** TYPEDEFS ************************************/
-typedef short int PIN;
 
 const int board_size_in_bytes = sizeof(PIN) * NUM_PINS;
 
@@ -78,4 +88,4 @@ int (*const move_fp[4])(PIN [] /* inputBoard */,
 
 #include "llo_moves.h"
 
-#endif // __LLO_DEFS_H__
+#endif // LLO_DEFS_H_

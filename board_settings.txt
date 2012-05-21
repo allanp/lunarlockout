@@ -1,0 +1,16 @@
+lunar_lockout_board_settings
+
+llo_board_path: ./log
+llo_result_path: ./log
+
+llo_board_width: 5
+llo_num_pins: 6
+llo_all_boards: *		// Default: ./log/llo_board_b25_p6.txt
+llo_result_filename: *	// Default: ./log/llo_result_b25_p6.txt
+
+llo_board_width: 6
+llo_num_pins: 6
+
+llo_board_width: 7
+llo_num_pins: 8
+

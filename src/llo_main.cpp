@@ -1,36 +1,36 @@
 /****
- * Name: Tianhua Piao
+ * Name: allanp
  * Project: Lunar Lockout
- * Email: tianhua [AT] student.chalmers.se
- * Date: May 17, 2011
+ * Email: allanp.cocoa [AT] gmail.com
+ * Date: May 20, 2011
  */
 
-#ifndef __LLO_MAIN_CPP__
-#define __LLO_MAIN_CPP__
+#ifndef LLO_MAIN_CPP_
+#define LLO_MAIN_CPP_
+
+#define DEBUG_
+
+#define RECORD_FIRST
+
+static const int NUM_PINS = 8;
+static const int BOARD_WIDTH = 7;
+
+static const int MAX_BFS = 5;
+static const int MAX_DFS = 10;
 
 #include "include\llo.h"
 
 int main(int argc, char** argv){
   
-#ifdef _WIN32
   init_timer();
-#endif
 
-  int rc = 0;
-  
-  char filename[50];
-  llo_create_boards_filename(BOARD_MAX + 1, NUM_PINS, filename);
-  
-  llo_create_boards_file(filename, true);
-  llo_board(BOARD_MAX + 1, NUM_PINS, filename);
-  
-  rc = llo_main(filename);
-  
-  fprintf(stdout, "LLO has finished. return value: %d\n", rc);
+  llo_main(argc, argv);
+
+  fprintf(stdout, "LLO has finished.\n");
 
   getchar();
 
   return 0;
 }
 
-#endif // __LLO_MAIN_CPP__
+#endif // LLO_MAIN_CPP_

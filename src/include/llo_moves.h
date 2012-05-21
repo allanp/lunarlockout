@@ -1,5 +1,5 @@
-#ifndef __LLO_MOVES_H__
-#define __LLO_MOVES_H__
+#ifndef LLO_MOVES_H_
+#define LLO_MOVES_H_
 
 #include "llo_defs.h"
 
@@ -99,4 +99,4 @@ int move_right(PIN input[], int i, PIN out[]){
   return LLO_FAILED;
 }
 
-#endif // __LLO_MOVES_H__
+#endif // LLO_MOVES_H_

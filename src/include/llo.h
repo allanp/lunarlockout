@@ -1,20 +1,21 @@
-#ifndef __LLO_H__
-#define __LLO_H__
-
-#define RECORD_FIRST
-
-#define NUM_PINS        6
-#define BOARD_WIDTH     5
-
-#define MAX_DFS         10
-#define MAX_BFS         4
+#ifndef LLO_H_
+#define LLO_H_
 
 #include "timer.h"
 
 #include "llo_defs.h"
+#include "llo_board.h"
 
-#include "llo_dfs.h" // depth-first search
-#include "llo_bfs.h" // breadth-first search
+#include "llo_search.h" // breadth/depth-first search
+
+
+void show_usage(){
+	fprintf(stdout, "\nlunnar lockout version: %d.%d\n" \
+					"e.g:\n" \
+					"Creates all the possible settings of 5*5 board with 6 pins, and solve each of them.\n" \
+					"when solving, do no more than 4 levels of BFS, and no more than 10 levels of DFS.\n\n" \
+					"\t$ ./LLO 5 6 4 10\n\n",  version_major, version_minor);
+}
 
 /* initialization functions */
 void init_all(){
@@ -22,6 +23,40 @@ void init_all(){
   memset(init_boards, (PIN)-1, max_size);
   memset(final_boards, (PIN)-1, max_size);
   total_solution = 0;
+}
+
+int parse_args(int argc, char** argv, int &board_width, int &ctn_pins, int &max_bfs, int &max_dfs){
+
+#ifdef DEBUG_
+  if(argc == 1){
+	board_width = 5;
+	ctn_pins = 6;
+	max_bfs = 4;
+	max_dfs = 10;
+	return LLO_SUCCEED;
+  }
+#endif
+
+  if(argc != 5){
+	  return LLO_FAILED;
+  }
+  
+  board_width = atoi(argv[1]);
+  ctn_pins = atoi(argv[2]);
+  max_bfs = atoi(argv[3]);
+  max_dfs = atoi(argv[4]);
+  
+  if(board_width <= 0 || ctn_pins <= 0|| board_width * board_width < ctn_pins){
+	  fprintf(stderr, "invalid board setting.\n");   
+	  return LLO_FAILED;
+  }
+
+  if(max_bfs < 0 || max_dfs < 0 || max_bfs + max_dfs <= 0){
+	  fprintf(stderr, "invalid search option.\n");
+	  return LLO_FAILED;
+  }
+  
+  return LLO_SUCCEED;
 }
 
 void create_board(PIN board[], const char* filename, int* line_num){
@@ -65,27 +100,27 @@ void create_board(PIN board[], const char* filename, int* line_num){
   fclose(f);
 }
 
-void create_board(PIN p[], int board_index){
-
-#if   NUM_PINS == 4   /* 4x4 */
-  PIN temp[NUM_PINS] = {16, 6, 8, 23};
-#elif NUM_PINS == 5   /* 5x5 */
-    PIN temp[4][NUM_PINS] = {{6, 1, 2, 18, 21}, /* 6 */
-                             {21, 0, 2, 4, 19}, /* Facebook, #40, 12 */
-                             {6, 1, 2, 18, 21}, /* 6 */
-                             {18, 0, 3, 4, 15}};  /* 8 */
-#elif NUM_PINS == 6   /* 6x6 */
-    PIN temp[1][NUM_PINS] = {
-//                            { 2, 0, 16, 18, 21, 23},  /* 2 */
-//                            {19, 0,  1,  2,  5, 21},  /* 13 */
-//                            { 9, 0,  2,  4, 20, 24}   /* 10 */
-//                            {24, 0,  2,  4, 10, 20},  /* Facebook, #39, 13 */
-                              {21, 2,  4, 10, 11, 24},  /* Facebook, #38, 10 */
-//                            { 2, 7, 12, 14, 15, 23},  /* 7 */
-                            };
-#endif
-  memcpy(p, temp[board_index], board_size_in_bytes );
-}
+//void create_board(PIN p[], int board_index){
+//
+//#if   NUM_PINS == 4   /* 4x4 */
+//  PIN temp[NUM_PINS] = {16, 6, 8, 23};
+//#elif NUM_PINS == 5   /* 5x5 */
+//    PIN temp[4][NUM_PINS] = {{6, 1, 2, 18, 21}, /* 6 */
+//                             {21, 0, 2, 4, 19}, /* Facebook, #40, 12 */
+//                             {6, 1, 2, 18, 21}, /* 6 */
+//                             {18, 0, 3, 4, 15}};  /* 8 */
+//#elif NUM_PINS == 6   /* 6x6 */
+//    PIN temp[1][NUM_PINS] = {
+////                            { 2, 0, 16, 18, 21, 23},  /* 2 */
+////                            {19, 0,  1,  2,  5, 21},  /* 13 */
+////                            { 9, 0,  2,  4, 20, 24}   /* 10 */
+////                            {24, 0,  2,  4, 10, 20},  /* Facebook, #39, 13 */
+//                              {21, 2,  4, 10, 11, 24},  /* Facebook, #38, 10 */
+////                            { 2, 7, 12, 14, 15, 23},  /* 7 */
+//                            };
+//#endif
+//  memcpy(p, temp[board_index], board_size_in_bytes );
+//}
 
 int record_board(int board_index, int i, double t0, double t1){
   int min_moves = all_movements[board_index][0][0];
@@ -147,7 +182,7 @@ void combine_moves(PIN queue[][NUM_PINS+2], int parents[], int index_bfs, int bf
   }
 }
 
-/* solver functions */
+/* solver function */
 int try_solve(PIN p[], int board_index){
   int rc = 0;                              /* return value */
 
@@ -174,6 +209,7 @@ int try_solve(PIN p[], int board_index){
   PIN movements[MAX_MOVES][2];             /* store the solution movements */
   memset(movements, (PIN)-1, sizeof(PIN)*MAX_MOVES*2);
  
+  //   solve_bfs(PIN*, int&, PIN**, int*, int&, int&)
   rc = solve_bfs(root, max_levels, queue, parents, bfs_index, num_result);  /* solve bfs-ly */
 
   if(rc != LLO_FAILED ){                   /* found a solution in the bfs */
@@ -242,11 +278,36 @@ int try_solve(PIN p[], int board_index){
   return LLO_SUCCEED;
 }
 
-int llo_main(const char* filename){
+const char* print_board(PIN p[]){
+	if(!p) return "";
+
+	char buf[MAX_CHAR];
+	memset(buf, 0, sizeof(char)*MAX_CHAR);
+
+	sprintf(buf, "%d %d %d %d %d %d %d %d", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+	
+	return strdup(buf);
+}
+
+int llo_main(int argc, char** argv){
+
+  int t_board_width, t_ctn_pins, t_max_bfs, t_max_dfs;
+
+  // parse the arguments
+  if(LLO_SUCCEED != parse_args(argc, argv, t_board_width, t_ctn_pins, t_max_bfs, t_max_dfs)){
+	  show_usage();
+	  exit(-1);
+  }
+
+  set_board(t_ctn_pins, t_board_width);
+
+  char filename[MAX_CHAR];
+  gen_all_boards(filename);
 
   double t0, t1;
   int board_index = 0;
-  fprintf(stdout, "NUM_PINS: %d, BOARD_WIDTH: %d, BFS: %d, DFS: %d -> \n\n", NUM_PINS, BOARD_WIDTH, MAX_BFS, MAX_DFS);
+  fprintf(stdout, "NUM_PINS: %d, BOARD_WIDTH: %d, BFS: %d, DFS: %d -> \n\n", NUM_PINS, BOARD_WIDTH, MAX_BFS, MAX_DFS); 
+	  // t_ctn_pins, t_board_width, t_max_bfs, t_max_dfs);
 
   int total = 1;
 
@@ -281,8 +342,7 @@ int llo_main(const char* filename){
     if(board[0] == BOARD_CENTER)       /* already the final board */
       continue;
     int rc;
-    fprintf(stdout, "solving board #%d...\r", i); 
-    fflush(stdout);
+    fprintf(stdout, "solving board #%d: %s ... ", i, print_board(board)); 
     
     timer(&t0);
     rc = try_solve(board, board_index);
@@ -295,6 +355,10 @@ int llo_main(const char* filename){
       total_found_counter++;
       record_board(board_index, i, t0, t1);
     }
+	else{
+		fprintf(stdout, "took %.3f msec, but failed.\n", t1 - t0);
+		fflush(stdout);
+	}
   }
 
   f = fopen("log.txt", "a");
@@ -309,6 +373,4 @@ int llo_main(const char* filename){
   return total;
 }
 
-#include "llo_board.h"
-
-#endif // __LLO_H__
+#endif // LLO_H_
