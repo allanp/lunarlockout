@@ -59,45 +59,33 @@ int parse_args(int argc, char** argv, int &board_width, int &ctn_pins, int &max_
   return LLO_SUCCEED;
 }
 
-void create_board(PIN board[], const char* filename, int* line_num){
+int read_board_from_file(const char* filename, const int line_num, PIN board[]){
   
-  char line[80];
-  char *ptr = 0;
-  int i = 0;
+	char line[80];
+	char *ptr = 0;
   
-  FILE *f = fopen(filename, "r");
-  if(!f){
-    *line_num = -1;
-    return;
-  }
+	FILE *f = fopen(filename, "r");
+	if(!f) return LLO_FAILED;
 
-  int current_line = 0;
-
-  while( fgets(line, sizeof(line), f) != NULL)
-  {
-     // clear the array
-     memset(board,0,sizeof(board));
-     i = 0;
-     // extract numbers from line string
-     ptr = strtok(line," ");
-     while( ptr != NULL)
-     {
-       // insert into array
-       board[i] = atoi(ptr);
-       ++i;
-       // get next number from the string
-       ptr = strtok(NULL, " ");
-     }
-     if(current_line == *line_num){
-       fclose(f);
-       // reached the line
-       return;
-     }
-     current_line++;
-  }
-
-  *line_num = -1;
-  fclose(f);
+	int current_line = 0;
+	while(fgets(line, sizeof(line), f)){
+		if(current_line++ == line_num){
+			memset(board, (PIN)0, sizeof(board)); 
+			int i = 0;
+			// extract numbers from line string
+			ptr = strtok(line," ");
+			while( ptr != NULL){
+				// insert into array
+				board[i++] = atoi(ptr);
+				// get next number from the string
+				ptr = strtok(NULL, " ");
+			}
+			fclose(f);
+			return LLO_SUCCEED;
+		}
+	}
+	fclose(f);
+	return LLO_FAILED;
 }
 
 //void create_board(PIN p[], int board_index){
@@ -183,8 +171,10 @@ void combine_moves(PIN queue[][NUM_PINS+2], int parents[], int index_bfs, int bf
 }
 
 /* solver function */
-int try_solve(PIN p[], int board_index){
+int try_solve(board_ptr brd, board_result_ptr brd_result){
   int rc = 0;                              /* return value */
+
+  
 
   PIN final_result[NUM_PINS+2];             /* final board */
   int min_moves = MAX_MOVES;                /* the minimal Moves */
@@ -278,88 +268,128 @@ int try_solve(PIN p[], int board_index){
   return LLO_SUCCEED;
 }
 
-const char* print_board(PIN p[]){
-	if(!p) return "";
+
+void board_init(board_ptr brd, int ctn_pins, int board_width){
+	if(!brd){
+		fprintf(stderr, "Invalid board.\n");
+		exit(-1);
+	}
+
+	if( ctn_pins < 0 || board_width <= 0 || board_width % 2 > 0 || 
+		ctn_pins > board_width * board_width){
+		fprintf(stderr, "Invalid board setting.\n");
+		exit(-1);
+	}
+
+	brd->pins = (PIN*)malloc(sizeof(PIN) * brd->ctn_pins);
+	if(!brd->pins){
+		fprintf(stderr, "Invalid.\n");
+		exit(-1);
+	}
+	brd->board_width = board_width;
+	brd->ctn_pins = ctn_pins;
+}
+
+bool board_is_final(board_ptr brd){
+	if(!brd){
+		fprintf(stderr, "Invalid board.\n");
+		exit(-1);
+	}
+	return brd->pins[0] == ((brd->board_width * brd->board_width) - 1);
+}
+
+const char* board_to_string(board_ptr brd){
 
 	char buf[MAX_CHAR];
-	memset(buf, 0, sizeof(char)*MAX_CHAR);
+	memset(buf, '\0', sizeof(char) * MAX_CHAR);
 
-	sprintf(buf, "%d %d %d %d %d %d %d %d", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+	if(!brd || !(brd->pins)) 
+		return "Invalid board.\n";
 	
+	static const int sub_buf_size = 32;
+
+	sprintf(buf, "%d", brd->pins[0]);
+	for(int i = 1; i < brd->ctn_pins; i++){
+		char sub_buf[sub_buf_size];
+		memset(sub_buf, '\0', sizeof(char) * sub_buf_size);
+
+		itoa(brd->pins[i], sub_buf, 10);
+		
+		strcat(buf, " ");
+		strcat(buf, sub_buf);
+	}
+	strcat("\n", buf);
+
 	return strdup(buf);
 }
 
 int llo_main(int argc, char** argv){
 
-  int t_board_width, t_ctn_pins, t_max_bfs, t_max_dfs;
+	int board_width, ctn_pins, max_bfs, max_dfs;
 
-  // parse the arguments
-  if(LLO_SUCCEED != parse_args(argc, argv, t_board_width, t_ctn_pins, t_max_bfs, t_max_dfs)){
-	  show_usage();
-	  exit(-1);
-  }
-
-  set_board(t_ctn_pins, t_board_width);
-
-  char filename[MAX_CHAR];
-  gen_all_boards(filename);
-
-  double t0, t1;
-  int board_index = 0;
-  fprintf(stdout, "NUM_PINS: %d, BOARD_WIDTH: %d, BFS: %d, DFS: %d -> \n\n", NUM_PINS, BOARD_WIDTH, MAX_BFS, MAX_DFS); 
-	  // t_ctn_pins, t_board_width, t_max_bfs, t_max_dfs);
-
-  int total = 1;
-
-  FILE *f = fopen("log.txt", "w");
-  if(f == NULL) return -1;
-  fclose(f);
-
-  PIN board[NUM_PINS];
-  PIN root[NUM_PINS];
-  memset(board, (PIN)-1, board_size_in_bytes);
-  memset(root, (PIN)-1, board_size_in_bytes);
-
-  double total_time = 0, total_found_time = 0;
-  long total_found_counter = 0;
-  int i = 0;
-  int line = 0;
-
-  int last_line = 0;
-  while(true){ //i < total ){
-
-    if(board_index > MAX_SIZE) 
-      break;
-
-    last_line = line;
-    create_board(board, filename, &line);
-
-    if(line == -1) 
-      break;
-    line++;
-
-    i++;
-    if(board[0] == BOARD_CENTER)       /* already the final board */
-      continue;
-    int rc;
-    fprintf(stdout, "solving board #%d: %s ... ", i, print_board(board)); 
-    
-    timer(&t0);
-    rc = try_solve(board, board_index);
-    timer(&t1);
-
-    total_time += t1 - t0;
-
-    if( rc == LLO_SUCCEED){
-      total_found_time += t1 - t0;
-      total_found_counter++;
-      record_board(board_index, i, t0, t1);
-    }
-	else{
-		fprintf(stdout, "took %.3f msec, but failed.\n", t1 - t0);
-		fflush(stdout);
+	// parse the arguments
+	if(LLO_SUCCEED != parse_args(argc, argv, board_width, ctn_pins, max_bfs, max_dfs)){
+		show_usage();
+		exit(-1);
 	}
-  }
+
+#if defined(_WIN32)
+	init_timer();
+#endif
+
+	char filename[MAX_CHAR];
+	gen_all_boards(filename);
+
+	double t0, t1;
+	int board_index = 0;
+	fprintf(stdout, "NUM_PINS: %d, BOARD_WIDTH: %d, BFS: %d, DFS: %d -> \n\n", ctn_pins, board_width, max_bfs, max_dfs); 
+
+	int total = 1;
+
+	FILE *f = fopen(log_filename, "w");
+	if(f == NULL) return -1;
+	fclose(f);
+
+	static const int board_size_in_bytes = sizeof(PIN) * t_ctn_pins;
+
+	double total_time = 0, total_found_time = 0;
+	long total_found_counter = 0;
+	int board_index = 0;
+
+	for(;;board_index++){
+
+		if(board_index < 0 || board_index > MAX_SIZE) // reached the resource limit
+			break;
+
+		board_ptr brd = (board_ptr)malloc(sizeof(board_ptr));
+		board_init(brd, ctn_pins, board_width);
+		read_board_from_file(filename, board_index, brd);
+
+		if(board_is_final(brd))       /* already the final board */
+			continue;
+
+		int rc;
+		fprintf(stdout, "solving board #%d: %s ... ", board_index, board_to_string(brd)); 
+    
+		timer(&t0);
+		rc = try_solve(brd, result);
+		timer(&t1);
+	
+		total_time += t1 - t0;
+
+		if( rc == LLO_SUCCEED){
+			total_found_time += t1 - t0;
+			total_found_counter++;
+			// record_board(board_index, i, t0, t1);
+		}
+		else{
+			fprintf(stdout, "took %.3f msec, but failed.\n", t1 - t0);
+			fflush(stdout);
+		}
+
+		free(brd->pins);
+		free(brd);
+	}
 
   f = fopen("log.txt", "a");
   if(f== NULL)

@@ -3,29 +3,27 @@
 
 #include <stdio.h>
 
-int __ctn_pins = 0;
-int __board_width = 0;
+//int validate_board_setting(int ctn_pins, int board_width){
+//	return ctn_pins > 0 && board_width > 2 && 
+//		   ctn_pins < board_width * board_width;
+//}
+//
+//void set_board(int ctn_pins, int board_width){
+//
+//	if(!validate_board_setting(ctn_pins, board_width)){
+//		fprintf(stderr, "invalid board setting.\n");
+//		exit(-1);
+//	}
+//	__ctn_pins = ctn_pins;
+//	__board_width = board_width;
+//}
+//
+//inline const int get_ctn_pins() { return NUM_PINS; } // __ctn_pins; }
+//void set_num_pins(int ctn_pins){ set_board(ctn_pins, __board_width); }
+//
+//void set_board_width(int board_width){ set_board(__ctn_pins, board_width); }
+//inline const int get_board_width() { return BOARD_WIDTH; } // __board_width; }
 
-int validate_board_setting(int ctn_pins, int board_width){
-	return ctn_pins > 0 && board_width > 2 && 
-		   ctn_pins < board_width * board_width;
-}
-
-void set_board(int ctn_pins, int board_width){
-
-	if(!validate_board_setting(ctn_pins, board_width)){
-		fprintf(stderr, "invalid board setting.\n");
-		exit(-1);
-	}
-	__ctn_pins = ctn_pins;
-	__board_width = board_width;
-}
-
-inline const int get_ctn_pins() { return NUM_PINS; } // __ctn_pins; }
-void set_num_pins(int ctn_pins){ set_board(ctn_pins, __board_width); }
-
-void set_board_width(int board_width){ set_board(__ctn_pins, board_width); }
-inline const int get_board_width() { return BOARD_WIDTH; } // __board_width; }
 
 void create_boards_filename(int bmax, int npin, char* filename){
   if(!filename){

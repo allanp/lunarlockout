@@ -42,11 +42,23 @@ typedef short int PIN;
 
 typedef struct _board{
 	int board_width;
-	int num_pins;
-	PIN* board;
+	int ctn_pins;
+	PIN* pins;
 }board, *board_ptr;
 
- 
+typedef struct _board_result{
+	int ctn_pins;
+	int board_width;
+
+	PIN* begin_pins;
+	PIN* final_pins;
+
+	int ctn_steps;
+	char* steps;
+}board_result, *board_result_ptr;
+
+const char* log_filename = "log.txt";
+
 /*************************************** MACROS *************************************/
 #define MAX(x, y)        ( ( (x)>(y) ) ? (x) : (y) )
 #define MIN(x, y)        ( ( (x)<(y) ) ? (x) : (y) )
@@ -60,8 +72,6 @@ typedef struct _board{
 #define S_PUSH(STACK, BOARD, S_SIZE, BOARD_SIZE_IN_BYTES)      memcpy( (STACK[(++S_SIZE)]), (BOARD), (BOARD_SIZE_IN_BYTES))
 #define S_PEEK(STACK, S_SIZE)                                  STACK[(S_SIZE)]
 #define S_POP(STACK, S_SIZE)                                   STACK[(S_SIZE)--]
-
-const int board_size_in_bytes = sizeof(PIN) * NUM_PINS;
 
 /* counters */
 int total_solution;
