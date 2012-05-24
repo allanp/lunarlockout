@@ -28,6 +28,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\llo_main.cpp" />
+    <ClCompile Include="src\llo_board.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="board_settings.txt" />

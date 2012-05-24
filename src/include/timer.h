@@ -10,11 +10,10 @@ void timer(double *et /* microseconds */ ){
     gettimeofday( &t, (struct timezone *)0 );
     *et = t.tv_sec*1.0e3 + t.tv_usec*1.0e-3;
 }
-
 #elif defined(_WIN32)
 #include <Windows.h>
 __int64 _freq;
-void init_timer(){
+void timer_init(){
 	QueryPerformanceFrequency((LARGE_INTEGER *)&_freq);  /* needs Windows.h header */
 }
 void timer(double *et /* microseconds */ ){
