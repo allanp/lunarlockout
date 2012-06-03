@@ -21,17 +21,19 @@
   <ItemGroup>
     <ClInclude Include="src\include\llo.h" />
     <ClInclude Include="src\include\llo_board.h" />
-    <ClInclude Include="src\include\llo_defs.h" />
-    <ClInclude Include="src\include\llo_search.h" />
-    <ClInclude Include="src\include\llo_moves.h" />
+    <ClInclude Include="src\include\llo_internal.h" />
+    <ClInclude Include="src\include\llo_solver.h" />
     <ClInclude Include="src\include\timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\llo_main.cpp" />
+    <ClCompile Include="src\llo.cpp" />
     <ClCompile Include="src\llo_board.cpp" />
+    <ClCompile Include="src\llo_internal_moves.cpp" />
+    <ClCompile Include="src\llo_solver.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="board_settings.txt" />
+    <None Include="src\llo_solver_old.c.bak" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0CC23858-0535-4308-8B48-C28CBB1D3891}</ProjectGuid>

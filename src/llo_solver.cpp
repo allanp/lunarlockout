@@ -5,10 +5,42 @@
 #include "include/llo_board.h"
 
 int solve_bfs(board_ptr input, int max_bfs, board_result_ptr *bfs_results, int &ctn_bfs_results){
-	if(!input->pins) return LLO_ERROR;
+	if(!input->pins) 
+		return LLO_ERROR;
+
+	ctn_bfs_results = 0;
+	bfs_results = NULL;
+
+	if(input->pins[0] == BOARD_CENTER(input->board_width)){
+		ctn_bfs_results = 1;
+
+		board_result_init(bfs_results[0], input->board_width, input->ctn_pins, 0);
+		memcpy(bfs_results[0]->begin_pins, input->pins, BOARD_SIZE_BYTES(input->ctn_pins));
+		memcpy(bfs_results[0]->final_pins, input->pins, BOARD_SIZE_BYTES(input->ctn_pins));
+		bfs_results[0]->ctn_steps = 0;
+		bfs_results[0]->steps = NULL;
+		return LLO_OK;
+	}
 
 	// use a queue
+
+	int max_bfs_boards = board_max_ctn(input->ctn_pins, max_bfs);
+	PIN *current_board;
+	int pos = 0;
+	int board_size = sizeof(PIN) * input->ctn_pins;
+	PIN *queue = (PIN*)malloc(board_size * max_bfs_boards);
 	
+	// enqueue :
+	memcpy(queue, input->pins, board_size);
+	// peek    :
+	current_board = &queue[pos];
+	// dequeue : peek - 1
+	
+
+
+
+
+
 
 	return LLO_OK;
 }

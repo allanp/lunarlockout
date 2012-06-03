@@ -22,9 +22,6 @@ void llo_main(int argc, char** argv){
 	int ctn_output = 0;
 
 	llo_solve(input, 4, 10, output, ctn_output);
-
-
-
 }
 
 #endif // LLO_CPP_

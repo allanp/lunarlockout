@@ -1,13 +1,10 @@
 #ifndef LLO_BOARD_CPP_
 #define LLO_BOARD_CPP_
 
-//#include <stdio.h>
 #include <malloc.h>
 
 #include "include/llo_internal.h"
 #include "include/llo_board.h"
-
-#define BOARD_SIZE_BYTES(ctn_pins)	(sizeof(PIN) * ctn_pins)
 
 int board_init(board_ptr brd, int board_width, int ctn_pins){
 	if(!brd){
@@ -29,7 +26,6 @@ int board_copy(const board_ptr input, board_ptr output){
 
 	return LLO_OK;
 }
-
 void board_destroy(board_ptr brd){
 	if(!brd)
 		return;
@@ -51,13 +47,19 @@ int board_clear(board_ptr brd){
 int board_result_init(board_result_ptr brd, int board_width, int ctn_pins, int max_steps){
 	if(!brd){
 		brd = (board_result_ptr)malloc(sizeof(board_result_ptr));
-		brd->begin_pins = (PIN*)malloc(sizeof(PIN) * ctn_pins);
-		brd->final_pins = (PIN*)malloc(sizeof(PIN) * ctn_pins);
+		if(!brd) return LLO_ERROR;
+		brd->begin_pins = (PIN*)malloc(BOARD_SIZE_BYTES(ctn_pins));
+		if(!brd->begin_pins) return LLO_ERROR;
+		brd->final_pins = (PIN*)malloc(BOARD_SIZE_BYTES(ctn_pins));
+		if(!brd->final_pins) return LLO_ERROR;
+
 		brd->ctn_pins = ctn_pins;
 		brd->ctn_steps = 0;
-		brd->steps = (char*)malloc((sizeof(char) * max_steps) << 1);
-		memset(brd->steps, (char)0, (sizeof(char) * max_steps) << 1);
-		
+		if(max_steps > 0){
+			brd->steps = (char*)malloc((sizeof(char) * max_steps) << 1);
+			if(!brd->steps) return LLO_ERROR;
+			memset(brd->steps, 0, (sizeof(char) * max_steps) << 1);
+		}
 		return LLO_OK;
 	}
 	return LLO_ERROR;
@@ -150,6 +152,17 @@ int board_result_merge(board_result_ptr b0, board_result_ptr b1, board_result_pt
 	memcpy((void*)output->steps[step_size * b0->ctn_steps], (void*)b1->steps, step_size * b1->ctn_steps);
 
 	return LLO_OK;
+}
+
+#include <math.h>
+int board_max_ctn(int ctn_pins, int max_bfs){
+	// max_bfs > 0: 1
+	// others     : 1 + ctn_pins * (4^1 + 4^2 + 4^3 + 4^4 + 4^5 + 4^6 + 4^7....£©
+	int result = 0;
+	while(max_bfs > 0)
+		result += pow(4.0, max_bfs--);
+	result *= ctn_pins;
+	return result + 1;
 }
 
 #endif // LLO_BOARD_CPP_

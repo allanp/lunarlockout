@@ -68,4 +68,5 @@ int (*const move_fp[4])(board_ptr , int , PIN []  ) = { move_up, move_right, mov
 
 #include "llo.h"
 
+
 #endif // LLO_INTERNAL_H_
