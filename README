@@ -15,13 +15,9 @@ File Structure:
 	 |- llo_main.cpp      /* program main entry */
 	 L- include/
 	     |- llo.h         /* main header */
-	     |- llo_bfs.h     /* Bredth-first search */
 	     |- llo_board.h   /* board creation related header */
 	     |- llo_defs.h    /* Macros, constants, defines */
-	     |- llo_dfs.h     /* Depth-first search */
 	     |- llo_moves.h
 	     L- timer.h       /* timer */
-	bin/
-	  |- LLO.exe          /* executable */
 	  
 	  
